@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, Field
 from guard.models.account import AuthorizedApp, ActiveSession
 
@@ -41,4 +41,5 @@ class AccountRiskReport(BaseModel):
     risks: List[RiskItem]
     authorized_apps: List[AuthorizedApp]
     active_sessions: List[ActiveSession]
+    sessions_note: Optional[str] = None
     two_fa_enabled: bool

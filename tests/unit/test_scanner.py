@@ -19,7 +19,7 @@ async def test_run_scan_success():
             "scopes": ["identify"]
         }
     ]
-    mock_sessions = [{"session_id": "sess1", "client_info": {"os": "win"}}]
+    mock_sessions = {"sessions": [{"session_id": "sess1", "client_info": {"os": "win"}}], "note": None}
 
     with patch("guard.core.scanner.DiscordClient") as MockClient:
         instance = MockClient.return_value
@@ -35,3 +35,4 @@ async def test_run_scan_success():
         assert len(report.authorized_apps) == 1
         assert len(report.active_sessions) == 1
         assert report.overall_score == 0
+        assert report.sessions_note is None

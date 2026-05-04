@@ -90,6 +90,9 @@ def display_report(report: AccountRiskReport) -> None:
     session_count = len(report.active_sessions)
     if session_count > 0:
         console.print(f"\n[bold]Active Sessions:[/bold] {session_count} detected.")
+    
+    if report.sessions_note:
+        console.print(f"\n[dim]ℹ {report.sessions_note}[/dim]")
 
 
 async def revoke_flow(token: str, report: AccountRiskReport) -> None:

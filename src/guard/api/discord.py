@@ -118,19 +118,24 @@ class DiscordClient:
         """
         return await self._request("GET", "/oauth2/tokens")
 
-    async def get_sessions(self) -> List[Dict[str, Any]]:
+    async def get_sessions(self) -> Dict[str, Any]:
         """Fetches active account sessions.
 
         Returns:
-            List of active sessions.
+            Dictionary with 'sessions' (list) and 'note' (optional string).
         """
         # Note: This endpoint might require specific headers or might not be 
         # officially documented for user tokens, but it's used by the web client.
         try:
-            return await self._request("GET", "/auth/sessions")
+            sessions = await self._request("GET", "/auth/sessions")
+            return {"sessions": sessions, "note": None}
         except DiscordAPIError:
-            logger.warning("sessions_endpoint_failed", message="Could not fetch sessions.")
-            return []
+            note = (
+                "Discord limits active session visibility for third-party tools. "
+                "Check 'User Settings -> Devices' in your Discord app for full details."
+            )
+            logger.warning("sessions_endpoint_restricted", message=note)
+            return {"sessions": [], "note": note}
 
     async def revoke_app(self, app_id: str) -> None:
         """Revokes an authorized application.

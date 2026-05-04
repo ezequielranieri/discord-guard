@@ -34,7 +34,7 @@ class AccountScanner:
         # Note: In a real scenario, we might use asyncio.gather
         user_data = await self.client.get_me()
         apps_data = await self.client.get_authorized_apps()
-        sessions_data = await self.client.get_sessions()
+        sessions_result = await self.client.get_sessions()
 
         # 2. Parse into models
         user = DiscordUser(**user_data)
@@ -49,10 +49,11 @@ class AccountScanner:
             for app in apps_data
         ]
         
-        sessions = [ActiveSession(**s) for s in sessions_data]
+        sessions = [ActiveSession(**s) for s in sessions_result["sessions"]]
 
         # 3. Analyze
         report = self.analyzer.analyze(user, apps, sessions)
+        report.sessions_note = sessions_result["note"]
         
         logger.info("scan_run_completed", score=report.overall_score, level=report.overall_level)
         return report

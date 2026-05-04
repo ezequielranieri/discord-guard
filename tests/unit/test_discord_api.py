@@ -84,15 +84,16 @@ async def test_get_sessions_success(httpx_mock: HTTPXMock):
     )
 
     client = DiscordClient("valid_token")
-    sessions = await client.get_sessions()
+    result = await client.get_sessions()
 
-    assert len(sessions) == 1
-    assert sessions[0]["client_info"]["os"] == "windows"
+    assert len(result["sessions"]) == 1
+    assert result["sessions"][0]["client_info"]["os"] == "windows"
+    assert result["note"] is None
 
 
 @pytest.mark.asyncio
 async def test_get_sessions_error_fallback(httpx_mock: HTTPXMock):
-    """Tests fetching active sessions when the endpoint fails (returns empty list)."""
+    """Tests fetching active sessions when the endpoint fails (returns explanatory note)."""
     httpx_mock.add_response(
         method="GET",
         url="https://discord.com/api/v10/auth/sessions",
@@ -100,9 +101,10 @@ async def test_get_sessions_error_fallback(httpx_mock: HTTPXMock):
     )
 
     client = DiscordClient("valid_token")
-    sessions = await client.get_sessions()
+    result = await client.get_sessions()
 
-    assert sessions == []
+    assert result["sessions"] == []
+    assert "Discord limits active session visibility" in result["note"]
 
 
 @pytest.mark.asyncio
