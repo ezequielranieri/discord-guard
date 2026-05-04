@@ -35,7 +35,7 @@ class AccountRiskReport(BaseModel):
     """Comprehensive account security report."""
     user_id: str
     username: str
-    scan_timestamp: datetime = datetime.now()
+    scan_timestamp: datetime = Field(default_factory=datetime.now)
     overall_score: int  # 0-100, higher = more risk
     overall_level: RiskLevel
     risks: List[RiskItem]

@@ -1,5 +1,6 @@
 """Account scanner orchestration for discord-guard."""
 
+import asyncio
 import structlog
 from typing import List
 from guard.api.discord import DiscordClient
@@ -31,10 +32,11 @@ class AccountScanner:
         logger.info("scan_run_started")
 
         # 1. Fetch data in parallel
-        # Note: In a real scenario, we might use asyncio.gather
-        user_data = await self.client.get_me()
-        apps_data = await self.client.get_authorized_apps()
-        sessions_result = await self.client.get_sessions()
+        user_data, apps_data, sessions_result = await asyncio.gather(
+            self.client.get_me(),
+            self.client.get_authorized_apps(),
+            self.client.get_sessions()
+        )
 
         # 2. Parse into models
         user = DiscordUser(**user_data)
