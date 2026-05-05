@@ -1,9 +1,10 @@
 """Unit tests for report generation."""
 
-import os
 import json
+import os
+
 import pytest
-from pathlib import Path
+
 from guard.models.risk import AccountRiskReport, RiskLevel
 from guard.reports.json_report import JSONReportGenerator
 from guard.reports.pdf_report import PDFReportGenerator
@@ -31,7 +32,7 @@ def test_json_report_generation(mock_report, tmp_path):
     path = generator.generate(mock_report, str(output_file))
     
     assert os.path.exists(path)
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
         assert data["user_id"] == "12345"
         assert data["overall_score"] == 70

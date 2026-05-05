@@ -1,11 +1,13 @@
 """Integration tests for the discord-guard CLI."""
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
 from typer.testing import CliRunner
-from unittest.mock import AsyncMock, patch
+
 from guard.cli import app
-from guard.models.risk import AccountRiskReport, RiskLevel
 from guard.models.account import AuthorizedApp
+from guard.models.risk import AccountRiskReport, RiskLevel
 
 runner = CliRunner()
 

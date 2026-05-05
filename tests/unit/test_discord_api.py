@@ -2,7 +2,12 @@
 
 import pytest
 from pytest_httpx import HTTPXMock
-from guard.api.discord import DiscordClient, InvalidTokenError, RateLimitError, DiscordAPIError
+
+from guard.api.discord import (
+    DiscordClient,
+    InvalidTokenError,
+    RateLimitError,
+)
 
 
 @pytest.mark.asyncio

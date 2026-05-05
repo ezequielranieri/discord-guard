@@ -1,7 +1,9 @@
 """Unit tests for the AccountScanner."""
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
+
 from guard.core.scanner import AccountScanner
 from guard.models.risk import AccountRiskReport
 

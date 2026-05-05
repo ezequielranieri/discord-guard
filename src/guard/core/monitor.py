@@ -1,10 +1,12 @@
 """Real-time account monitoring for discord-guard."""
 
 import asyncio
+from collections.abc import Callable
+from typing import Any
+
 import structlog
-from datetime import datetime
-from typing import List, Dict, Any, Optional, Callable, Set
-from guard.api.discord import DiscordClient, DiscordAPIError
+
+from guard.api.discord import DiscordAPIError, DiscordClient
 from guard.models.risk import Alert
 
 logger = structlog.get_logger(__name__)
@@ -25,12 +27,12 @@ class AccountMonitor:
         self.is_running = False
         
         # State for comparison
-        self._prev_apps: Set[str] = set()
-        self._prev_friends: Set[str] = set()
-        self._prev_guilds: Set[str] = set()
+        self._prev_apps: set[str] = set()
+        self._prev_friends: set[str] = set()
+        self._prev_guilds: set[str] = set()
         self._initialized = False
 
-    async def _fetch_current_state(self) -> Dict[str, Any]:
+    async def _fetch_current_state(self) -> dict[str, Any]:
         """Fetches the current state of apps, friends, and guilds."""
         apps = await self.client.get_authorized_apps()
         friends = await self.client.get_relationships()
@@ -42,7 +44,7 @@ class AccountMonitor:
             "guilds": {g["id"] for g in guilds}
         }
 
-    def _detect_anomalies(self, current: Dict[str, Any]) -> List[Alert]:
+    def _detect_anomalies(self, current: dict[str, Any]) -> list[Alert]:
         """Compares current state with previous state to find anomalies."""
         alerts = []
         
@@ -59,8 +61,13 @@ class AccountMonitor:
             alerts.append(
                 Alert(
                     type="New Authorized App",
-                    description=f"Detected {len(new_apps)} new authorized application(s).",
-                    recommendation="Review your authorized apps immediately and revoke any you don't recognize."
+                    description=(
+                        f"Detected {len(new_apps)} new authorized application(s)."
+                    ),
+                    recommendation=(
+                        "Review your authorized apps immediately and revoke "
+                        "any you don't recognize."
+                    ),
                 )
             )
 
@@ -70,8 +77,14 @@ class AccountMonitor:
             alerts.append(
                 Alert(
                     type="Mass Unfriend Detected",
-                    description=f"Sudden removal of {len(removed_friends)} friends from your list.",
-                    recommendation="This could indicate your account is being compromised. Check your recent activity."
+                    description=(
+                        f"Sudden removal of {len(removed_friends)} friends "
+                        "from your list."
+                    ),
+                    recommendation=(
+                        "This could indicate your account is being compromised. "
+                        "Check your recent activity."
+                    ),
                 )
             )
 
@@ -81,8 +94,14 @@ class AccountMonitor:
             alerts.append(
                 Alert(
                     type="Server Join Spike",
-                    description=f"Your account joined {len(new_guilds)} new servers recently.",
-                    recommendation="If you didn't join these servers, your token might be hijacked."
+                    description=(
+                        f"Your account joined {len(new_guilds)} new servers "
+                        "recently."
+                    ),
+                    recommendation=(
+                        "If you didn't join these servers, your token might "
+                        "be hijacked."
+                    ),
                 )
             )
 

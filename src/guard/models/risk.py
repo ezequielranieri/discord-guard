@@ -2,9 +2,10 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+
 from pydantic import BaseModel, Field
-from guard.models.account import AuthorizedApp, ActiveSession
+
+from guard.models.account import ActiveSession, AuthorizedApp
 
 
 class RiskLevel(str, Enum):
@@ -38,8 +39,8 @@ class AccountRiskReport(BaseModel):
     scan_timestamp: datetime = Field(default_factory=datetime.now)
     overall_score: int  # 0-100, higher = more risk
     overall_level: RiskLevel
-    risks: List[RiskItem]
-    authorized_apps: List[AuthorizedApp]
-    active_sessions: List[ActiveSession]
-    sessions_note: Optional[str] = None
+    risks: list[RiskItem]
+    authorized_apps: list[AuthorizedApp]
+    active_sessions: list[ActiveSession]
+    sessions_note: str | None = None
     two_fa_enabled: bool

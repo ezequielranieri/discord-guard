@@ -1,12 +1,13 @@
 """Account scanner orchestration for discord-guard."""
 
 import asyncio
+
 import structlog
-from typing import List
+
 from guard.api.discord import DiscordClient
-from guard.models.account import DiscordUser, AuthorizedApp, ActiveSession
-from guard.models.risk import AccountRiskReport
 from guard.core.analyzer import RiskAnalyzer
+from guard.models.account import ActiveSession, AuthorizedApp, DiscordUser
+from guard.models.risk import AccountRiskReport
 
 logger = structlog.get_logger(__name__)
 
@@ -56,6 +57,10 @@ class AccountScanner:
         # 3. Analyze
         report = self.analyzer.analyze(user, apps, sessions)
         report.sessions_note = sessions_result["note"]
-        
-        logger.info("scan_run_completed", score=report.overall_score, level=report.overall_level)
+
+        logger.info(
+            "scan_run_completed",
+            score=report.overall_score,
+            level=report.overall_level,
+        )
         return report

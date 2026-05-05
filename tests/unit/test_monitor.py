@@ -1,8 +1,10 @@
 """Unit tests for the AccountMonitor."""
 
 import asyncio
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
+
 from guard.core.monitor import AccountMonitor
 
 

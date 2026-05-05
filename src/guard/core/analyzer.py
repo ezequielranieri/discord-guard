@@ -1,8 +1,8 @@
 """Risk analysis engine for discord-guard."""
 
-from typing import List
-from guard.models.account import DiscordUser, AuthorizedApp, ActiveSession
-from guard.models.risk import RiskItem, RiskLevel, AccountRiskReport
+
+from guard.models.account import ActiveSession, AuthorizedApp, DiscordUser
+from guard.models.risk import AccountRiskReport, RiskItem, RiskLevel
 
 
 class RiskAnalyzer:
@@ -11,8 +11,8 @@ class RiskAnalyzer:
     def analyze(
         self,
         user: DiscordUser,
-        apps: List[AuthorizedApp],
-        sessions: List[ActiveSession]
+        apps: list[AuthorizedApp],
+        sessions: list[ActiveSession]
     ) -> AccountRiskReport:
         """Performs a full risk analysis.
 
@@ -34,8 +34,11 @@ class RiskAnalyzer:
                     category="Authentication",
                     level=RiskLevel.CRITICAL,
                     description="Two-Factor Authentication (2FA) is not enabled.",
-                    recommendation="Enable 2FA in User Settings -> My Account -> Two-Factor Auth.",
-                    auto_fixable=False
+                    recommendation=(
+                        "Enable 2FA in User Settings -> My Account -> "
+                        "Two-Factor Auth."
+                    ),
+                    auto_fixable=False,
                 )
             )
             score += 40
@@ -43,21 +46,29 @@ class RiskAnalyzer:
         # 2. Analyze Authorized Apps
         dangerous_scopes = {"bot", "rpc", "messages.read", "guilds.join"}
         dangerous_apps_count = 0
-        
+
         for app in apps:
-            has_dangerous_scope = any(scope in dangerous_scopes for scope in app.scopes)
+            has_dangerous_scope = any(
+                scope in dangerous_scopes for scope in app.scopes
+            )
             if has_dangerous_scope:
                 dangerous_apps_count += 1
                 risks.append(
                     RiskItem(
                         category="Apps",
                         level=RiskLevel.WARNING,
-                        description=f"App '{app.name}' has dangerous permissions: {', '.join(app.scopes)}",
-                        recommendation=f"Review and consider revoking '{app.name}' if you don't recognize it.",
-                        auto_fixable=True
+                        description=(
+                            f"App '{app.name}' has dangerous permissions: "
+                            f"{', '.join(app.scopes)}"
+                        ),
+                        recommendation=(
+                            f"Review and consider revoking '{app.name}' if you "
+                            "don't recognize it."
+                        ),
+                        auto_fixable=True,
                     )
                 )
-        
+
         if dangerous_apps_count > 0:
             score += min(dangerous_apps_count * 10, 30)
 
@@ -67,9 +78,14 @@ class RiskAnalyzer:
                 RiskItem(
                     category="Sessions",
                     level=RiskLevel.WARNING,
-                    description=f"There are {len(sessions)} active sessions on your account.",
-                    recommendation="Check the active sessions and log out from any device you don't recognize.",
-                    auto_fixable=False
+                    description=(
+                        f"There are {len(sessions)} active sessions on your account."
+                    ),
+                    recommendation=(
+                        "Check the active sessions and log out from any device "
+                        "you don't recognize."
+                    ),
+                    auto_fixable=False,
                 )
             )
             score += 15

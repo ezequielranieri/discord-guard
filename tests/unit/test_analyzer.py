@@ -1,9 +1,10 @@
 """Unit tests for the RiskAnalyzer."""
 
 import pytest
-from guard.models.account import DiscordUser, AuthorizedApp, ActiveSession
-from guard.models.risk import RiskLevel
+
 from guard.core.analyzer import RiskAnalyzer
+from guard.models.account import ActiveSession, AuthorizedApp, DiscordUser
+from guard.models.risk import RiskLevel
 
 
 @pytest.fixture

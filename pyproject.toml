@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
 authors = [
-    { name = "Ezequiel Ranieri", email = "ezequielranieri@proton.me" },
+    { name = "Ezequiel Ranieri", email = "ez.ranieri@gmail.com" },
 ]
 dependencies = [
     "typer>=0.12.3",
@@ -30,6 +30,8 @@ packages = ["src/guard"]
 
 [tool.ruff]
 line-length = 88
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP"]
 
 [tool.mypy]

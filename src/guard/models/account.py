@@ -1,7 +1,7 @@
 """Account data models for discord-guard."""
 
-from typing import List, Optional
-from pydantic import BaseModel, Field, ConfigDict
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class DiscordUser(BaseModel):
@@ -11,8 +11,8 @@ class DiscordUser(BaseModel):
     username: str
     discriminator: str
     mfa_enabled: bool
-    email: Optional[str] = None
-    phone: Optional[str] = None
+    email: str | None = None
+    phone: str | None = None
     flags: int = 0
 
 
@@ -21,10 +21,10 @@ class AuthorizedApp(BaseModel):
 
     id: str
     name: str
-    description: Optional[str] = ""
-    icon: Optional[str] = None
-    scopes: List[str]
-    last_used_at: Optional[str] = None
+    description: str | None = ""
+    icon: str | None = None
+    scopes: list[str]
+    last_used_at: str | None = None
 
 
 class ActiveSession(BaseModel):
@@ -32,7 +32,7 @@ class ActiveSession(BaseModel):
 
     id: str = Field(alias="session_id")
     client_info: dict
-    location: Optional[str] = "Unknown"
-    last_used_at: Optional[str] = None
+    location: str | None = "Unknown"
+    last_used_at: str | None = None
 
     model_config = ConfigDict(populate_by_name=True)

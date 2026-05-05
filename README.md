@@ -103,7 +103,7 @@ discord-guard report --format pdf --output my_security_audit.pdf
 
 I am a self-taught Python developer with a passion for cybersecurity and backend engineering. This project demonstrates my ability to take a real-world problem and build a robust, secure, and user-centric solution from scratch. I focus on writing clean, idiomatic code and implementing professional engineering standards like asynchronous programming, strict type hinting, and automated testing.
 
-- **Email:** [ezequielranieri@proton.me](mailto:ezequielranieri@proton.me)
+- **Email:** [ez.ranieri@gmail.com](mailto:ez.ranieri@gmail.com)
 - **Portfolio:** https://github.com/ezequielranieri
 
 ---

@@ -1,8 +1,10 @@
 """Discord API client for discord-guard."""
 
+from typing import Any
+
 import httpx
 import structlog
-from typing import Any, Dict, List, Optional
+
 from guard.config import settings
 
 logger = structlog.get_logger(__name__)
@@ -38,10 +40,18 @@ class DiscordClient:
             "Content-Type": "application/json",
             "User-Agent": f"discord-guard ({settings.version})",
         }
-        self._masked_token = f"{self.token[:8]}...{self.token[-4:]}" if len(self.token) > 12 else "***"
+        self._masked_token = (
+            f"{self.token[:8]}...{self.token[-4:]}"
+            if len(self.token) > 12
+            else "***"
+        )
 
     async def _request(
-        self, method: str, endpoint: str, params: Optional[Dict[str, Any]] = None, json: Optional[Dict[str, Any]] = None
+        self,
+        method: str,
+        endpoint: str,
+        params: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
     ) -> Any:
         """Sends an async request to the Discord API.
 
@@ -60,33 +70,41 @@ class DiscordClient:
             DiscordAPIError: For other non-2xx responses.
         """
         url = f"{settings.discord_api_base_url}{endpoint}"
-        
+
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.request(
                     method, url, headers=self.headers, params=params, json=json
                 )
-                
+
                 if response.status_code == 401:
                     logger.error("invalid_token", token=self._masked_token)
                     raise InvalidTokenError("The provided Discord token is invalid.")
-                
+
                 if response.status_code == 429:
                     retry_after = response.headers.get("Retry-After", "unknown")
                     logger.warning("rate_limit_exceeded", retry_after=retry_after)
-                    raise RateLimitError(f"Rate limit exceeded. Retry after {retry_after}s.")
-                
+                    raise RateLimitError(
+                        f"Rate limit exceeded. Retry after {retry_after}s."
+                    )
+
                 response.raise_for_status()
                 return response.json() if response.content else None
 
             except httpx.HTTPStatusError as e:
-                logger.error("api_request_failed", status_code=e.response.status_code, url=url)
-                raise DiscordAPIError(f"API request failed with status {e.response.status_code}: {e}")
+                logger.error(
+                    "api_request_failed",
+                    status_code=e.response.status_code,
+                    url=url,
+                )
+                raise DiscordAPIError(
+                    f"API request failed with status {e.response.status_code}: {e}"
+                )
             except httpx.RequestError as e:
                 logger.error("api_connection_error", error=str(e), url=url)
                 raise DiscordAPIError(f"Failed to connect to Discord API: {e}")
 
-    async def get_me(self) -> Dict[str, Any]:
+    async def get_me(self) -> dict[str, Any]:
         """Fetches the current user's account info.
 
         Returns:
@@ -94,7 +112,7 @@ class DiscordClient:
         """
         return await self._request("GET", "/users/@me")
 
-    async def get_relationships(self) -> List[Dict[str, Any]]:
+    async def get_relationships(self) -> list[dict[str, Any]]:
         """Fetches the user's relationships (friends).
 
         Returns:
@@ -102,7 +120,7 @@ class DiscordClient:
         """
         return await self._request("GET", "/users/@me/relationships")
 
-    async def get_guilds(self) -> List[Dict[str, Any]]:
+    async def get_guilds(self) -> list[dict[str, Any]]:
         """Fetches the guilds the user is a member of.
 
         Returns:
@@ -110,7 +128,7 @@ class DiscordClient:
         """
         return await self._request("GET", "/users/@me/guilds")
 
-    async def get_authorized_apps(self) -> List[Dict[str, Any]]:
+    async def get_authorized_apps(self) -> list[dict[str, Any]]:
         """Fetches authorized OAuth2 applications.
 
         Returns:
@@ -118,7 +136,7 @@ class DiscordClient:
         """
         return await self._request("GET", "/oauth2/tokens")
 
-    async def get_sessions(self) -> Dict[str, Any]:
+    async def get_sessions(self) -> dict[str, Any]:
         """Fetches active account sessions.
 
         Returns:
