@@ -32,6 +32,25 @@ This tool requires your **Discord User Token** to function.
 1. **Never** share your token with anyone.
 2. Use this tool **only** on your own account.
 3. Your token is used in-memory only and is never sent to any server other than `discord.com`.
+4. After using this tool, consider changing your Discord password to invalidate the token you used.
+
+---
+
+## 🔑 How to Get Your Discord Token
+
+Finding your Discord token is a manual process as Discord does not officially provide it to users. Follow these steps:
+
+1. Open Discord in your **Web Browser** (Chrome, Firefox, Edge, etc.) and log in.
+2. Press `F12` (or `Ctrl+Shift+I` / `Cmd+Option+I`) to open the **Developer Tools**.
+3. Go to the **Network** tab.
+4. If the list is empty, refresh the page (`F5`).
+5. In the filter/search box, type `/api`.
+6. Click on any request that appears (e.g., `science`, `applications`, `library`).
+7. In the **Headers** section on the right, look for `authorization`.
+8. The long string of characters next to `authorization` is your token. **Copy it.**
+
+> [!WARNING]
+> **Your Discord Token is extremely sensitive.** It gives full access to your account without needing a password or 2FA. Never share it, paste it in public places, or give it to someone you don't trust.
 
 ---
 
