@@ -1,131 +1,101 @@
-# discord-guard 🛡️
+# discord-guard: A Proactive Defense Against Discord Session Hijacking
 
-**Discord Security Scanner & Real-time Protector**
+I built this CLI tool to empower Discord users to audit their account security, analyze authorized application risks, and monitor for suspicious activities in real-time. It bridges the gap between Discord's internal security settings and the user, providing a professional-grade auditing experience from the terminal.
 
-`discord-guard` is a professional CLI tool designed to help users detect and protect against session token hijacking, unauthorized application access, and suspicious account activity. Built with a security-first mindset and a focus on non-technical users.
+## 🌟 About the Developer
+Hello! I'm **Ezequiel Ranieri**. I am a self-taught developer who discovered the world of programming through curiosity and a passion for building things. Everything I know—from architecture patterns to distributed systems—I've learned on my own through books, technical documentation, videos, and endless hours of practice.
 
----
+I created this project to consolidate and demonstrate my understanding of software development. I don't claim to be a senior architect; I am a dedicated learner who enjoys solving complex technical challenges and building robust software that works under pressure.
 
-## 💡 Why This Tool Exists
-
-This project was inspired by a real-world incident. A close friend lost his Discord account to a token hijacking attack while he was offline. His account spent hours spamming malicious giveaway links to his entire friend list. 
-
-Discord provides very little visibility into active sessions or authorized app permissions for average users. `discord-guard` was built to bridge that gap, giving users the power to audit their own account security with a single command and react to anomalies in real time.
-
----
-
-## 🛡️ Security Features
-
-- **Risk Analysis Engine:** Calculates a 0-100 security score based on 2FA status, dangerous app permissions, and active sessions.
-- **Interactive Remediation:** Identify and revoke suspicious OAuth2 applications directly from the terminal.
-- **Real-time Monitoring:** Detects anomalies like sudden mass unfriending, server join spikes, or new unauthorized apps.
-- **Professional Auditing:** Generate PDF and JSON security reports for archival or sharing.
-- **Privacy by Design:** 
-    - Your Discord token is **never** stored on disk.
-    - Tokens are masked in all logs to prevent accidental exposure.
-    - All communication is performed over encrypted HTTPS via Discord's official API.
+**Contact:**
+- **Email:** ez.ranieri@gmail.com
+- **GitHub:** https://github.com/ezequielranieri
+- **LinkedIn:** https://www.linkedin.com/in/ezequielranieri/
 
 ---
 
-## ⚠️ Important Warning
-This tool requires your **Discord User Token** to function. 
-1. **Never** share your token with anyone.
-2. Use this tool **only** on your own account.
-3. Your token is used in-memory only and is never sent to any server other than `discord.com`.
-4. After using this tool, consider changing your Discord password to invalidate the token you used.
+## 🎯 Why this project?
+This project was born out of a real-world incident where a close friend lost his Discord account to a token hijacking attack. I realized that most users have no visibility into what permissions they've granted to third-party apps or where their sessions are active until it's too late. I built `discord-guard` to explore how to interact with Discord’s REST API asynchronously and to create a tool that provides immediate, actionable security insights for non-technical users.
+
+## 🏗 System Architecture / Data Flow
+My project follows a modular, service-oriented architecture designed to handle asynchronous operations efficiently:
+
+1. **CLI Orchestration**: Using `Typer`, I manage the user interface and command execution, ensuring a polished and interactive experience.
+2. **Async Data Acquisition**: The `Scanner` component fetches account data, authorized apps, and active sessions in parallel using `asyncio.gather` to minimize latency.
+3. **Risk Analysis Engine**: A dedicated service that processes the raw API data against a set of security heuristics to calculate a 0-100 risk score.
+4. **Real-time Monitoring**: A polling loop that detects deltas in the account state, such as mass unfriending or sudden server joins, and triggers visual alerts.
+5. **Report Generation**: A separate layer that transforms internal risk models into structured PDF or JSON files for archival.
+
+```mermaid
+graph TD
+    CLI[src/guard/cli.py] --> Scanner[src/guard/core/scanner.py]
+    CLI --> Monitor[src/guard/core/monitor.py]
+    Scanner --> API[src/guard/api/discord.py]
+    Scanner --> Analyzer[src/guard/core/analyzer.py]
+    Monitor --> API
+    Analyzer --> Models[src/guard/models/*.py]
+    Scanner --> Models
+    CLI --> Reports[src/guard/reports/*.py]
+```
+
+## 🛠 Tech Stack
+- **Python 3.12**: The core language, chosen for its robust support for asynchronous programming and security tooling.
+- **Typer & Rich**: Used to build a professional-grade terminal interface with tables, progress bars, and color-coded status reports.
+- **httpx**: My choice for high-performance, asynchronous HTTP communication with Discord's REST API.
+- **Pydantic V2**: Provides strict data validation and modeling, ensuring the application handles API responses safely and predictably.
+- **reportlab**: Integrated to generate professional PDF security audits directly from the command line.
+- **structlog**: Implementation of structured logging to ensure technical events are tracked without exposing sensitive user tokens.
 
 ---
 
-## 🔑 How to Get Your Discord Token
+## 🚀 Quick Start Guide
 
-Finding your Discord token is a manual process as Discord does not officially provide it to users. Follow these steps:
+### Prerequisites
+- Python 3.12 or higher.
+- A valid Discord User Token (instructions on how to get it are included in the terminal help).
 
-1. Open Discord in your **Web Browser** (Chrome, Firefox, Edge, etc.) and log in.
-2. Press `F12` (or `Ctrl+Shift+I` / `Cmd+Option+I`) to open the **Developer Tools**.
-3. Go to the **Network** tab.
-4. If the list is empty, refresh the page (`F5`).
-5. In the filter/search box, type `/api`.
-6. Click on any request that appears (e.g., `science`, `applications`, `library`).
-7. In the **Headers** section on the right, look for `authorization`.
-8. The long string of characters next to `authorization` is your token. **Copy it.**
-
-> [!WARNING]
-> **Your Discord Token is extremely sensitive.** It gives full access to your account without needing a password or 2FA. Never share it, paste it in public places, or give it to someone you don't trust.
-
----
-
-## 🚀 Installation
-
-Ensure you have **Python 3.12+** installed.
-
+### Installation
 ```bash
-# Clone the repository
+# Clone my repository
 git clone https://github.com/ezequielranieri/discord-guard
 cd discord-guard
 
-# Install in editable mode
+# Install the package in editable mode
 pip install -e .
 ```
 
----
-
-## 📖 Usage
-
-### 1. Scan your account
-Perform a full security audit and interactively revoke dangerous apps.
+### Running Locally
 ```bash
+# Run a security scan
 discord-guard scan
-```
 
-**Expected Output:**
-```
-┌─────────────────────────────────────────────────────┐
-│              SECURITY REPORT                        │
-│  Overall Risk Score: 72/100  🔴 CRITICAL            │
-└─────────────────────────────────────────────────────┘
-
-🔴 CRITICAL — Two-Factor Authentication (2FA) is not enabled.
-   → Enable 2FA in User Settings -> My Account -> Two-Factor Auth.
-
-🟡 WARNING — App 'Unknown Bot' has dangerous permissions: bot, rpc
-   → Review and consider revoking 'Unknown Bot' if you don't recognize it.
-
-Would you like to revoke access for these suspicious apps? [y/n]:
-```
-
-### 2. Monitor for attacks
-Keep the tool running to detect hijacking attempts in real time.
-```bash
+# Start real-time monitoring
 discord-guard monitor --interval 30
-```
 
-### 3. Generate a PDF Audit
-```bash
+# Generate a PDF report
 discord-guard report --format pdf --output my_security_audit.pdf
 ```
 
----
-
-## 🏗️ Architecture
-
-- **Frontend:** Built with `Typer` and `Rich` for a professional, interactive CLI experience.
-- **API Client:** Async `httpx` client for high-performance interaction with Discord's REST API.
-- **Validation:** `Pydantic V2` for strict data modeling and safety.
-- **Core Logic:** Decoupled `Scanner`, `Analyzer`, and `Monitor` modules for high maintainability.
-- **Testing:** Comprehensive test suite with over 20 tests covering unit and integration scenarios.
+## 💡 Usage / Endpoints
+The application is entirely CLI-driven. Here is how you interact with it:
+*   **Scanning**: Use `discord-guard scan`. The tool will prompt for your token (masked for privacy), analyze your account, and then ask if you want to interactively revoke any suspicious apps it found.
+*   **Monitoring**: Use `discord-guard monitor`. This keeps the process alive, checking your account state every few seconds. If a sudden change (like a mass unfriend spike) is detected, it will trigger a visual and audible alert.
+*   **Reporting**: Use `discord-guard report`. This is a non-interactive way to generate a full security document in PDF or JSON format for your records.
 
 ---
 
-## 👨‍💻 About the Author
+## 🧠 What I Learned
+Developing this project taught me a lot about handling sensitive user credentials and managing asynchronous state. I learned the importance of "Privacy by Design"—ensuring that tokens never touch the disk and are masked in every log entry.
 
-**Ezequiel Ranieri**
+However, revisiting my code today with more experience, I see several areas I would improve:
+1. **Connection Management**: My `DiscordClient` currently creates a new `httpx.AsyncClient` for every request. This is an antipatTM that increases latency. Today, I would implement a persistent client session to reuse TCP connections.
+2. **Configuration Over Code**: I hardcoded some detection thresholds (like 5 friends removed for a "mass" alert). I should have moved these into a configuration file or environment variables to allow user customization.
+3. **State Persistence**: The monitor's state is purely in-memory. If you restart the tool, the "previous state" is lost. I would now use a lightweight local cache (like SQLite or a JSON file) to keep track of account state across sessions.
+4. **Decoupling the Reporting Logic**: I would implement a Factory pattern for the report generators to make it easier to add new formats without modifying the core CLI logic.
 
-I am a self-taught Python developer with a passion for cybersecurity and backend engineering. This project demonstrates my ability to take a real-world problem and build a robust, secure, and user-centric solution from scratch. I focus on writing clean, idiomatic code and implementing professional engineering standards like asynchronous programming, strict type hinting, and automated testing.
+## 🗺 Roadmap
+- **Persistent Local State**: Implement a local database to track account changes over long periods.
+- **Webhook Integration**: Add the ability to send alerts to a Discord Webhook so users can be notified on their mobile devices.
+- **Improved Risk Heuristics**: Integrate a community-sourced list of known malicious Discord applications.
 
-- **Email:** [ez.ranieri@gmail.com](mailto:ez.ranieri@gmail.com)
-- **Portfolio:** https://github.com/ezequielranieri
-
----
-
-## 📜 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+Thank you for checking out my work! I'm always open to feedback and looking for new opportunities to learn and grow.
